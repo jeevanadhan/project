@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Share2, Copy, Check, Clock, FileText } from "lucide-react";
+import { Share2, Copy, Check, Clock, FileText, Mail, Send } from "lucide-react";
 
 const SharePage = () => {
   const [uploadedFiles, setUploadedFiles] = useState<{ id: string; name: string }[]>([]);
@@ -20,6 +20,26 @@ const SharePage = () => {
     await navigator.clipboard.writeText(shareLink);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleShareViaGmail = () => {
+    if (!selectedFile) return;
+    const subject = "File Sharing Link";
+    const body = `Here is your secure file link:\n${window.location.origin}/download/${selectedFile.id}`;
+    window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  };
+
+  const handleLocalShare = () => {
+    if (!selectedFile) return;
+    if (navigator.share) {
+      navigator.share({
+        title: "File Sharing Link",
+        text: `Download your file here: ${window.location.origin}/download/${selectedFile.id}`,
+        url: `${window.location.origin}/download/${selectedFile.id}`,
+      });
+    } else {
+      alert("Local sharing is not supported on this device.");
+    }
   };
 
   return (
@@ -93,6 +113,25 @@ const SharePage = () => {
             <div className="mt-3 flex items-center text-gray-400">
               <Clock className="mr-2" />
               <span>This link will expire in {expiryTime}</span>
+            </div>
+
+            {/* Share Options */}
+            <div className="mt-6 flex space-x-3">
+              {/* Share via Gmail */}
+              <button
+                onClick={handleShareViaGmail}
+                className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition flex items-center"
+              >
+                <Mail className="mr-2" /> Gmail
+              </button>
+
+              {/* Local Sharing */}
+              <button
+                onClick={handleLocalShare}
+                className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition flex items-center"
+              >
+                <Send className="mr-2" /> Share Nearby
+              </button>
             </div>
           </div>
         )}
